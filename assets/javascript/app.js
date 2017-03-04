@@ -60,6 +60,41 @@ function submitAns() {
 	});
 };
 	
+//Creating question timer variables & functions
+var timeLeft = 8;
+var increment;
+
+function runTimer() {
+	increment = setInterval(decrement, 1000);
+};
+
+function decrement() {
+	timeLeft--;
+	$("#time-left").html("Time remaining: " + timeLeft + " seconds");
+	if (timeLeft === 0) {
+		stopTimer();
+		userAns.length = 0;		
+		//Record user answer to question
+		var userSelection = $("#responses input:radio[name=optionsRadios]:checked").val();
+		userAns.push(userSelection);
+		console.log(userAns);
+		nextQ();
+	};
+};
+
+function resetTimer() {
+	timeLeft = 8;
+	$("#time-left").html("Time remaining: " + timeLeft + " seconds");
+};
+
+function displayTimer() {
+	$("#time-left").html("Answer Review");
+};
+
+function stopTimer() {
+	clearInterval(increment);
+};
+
 //Function to display the given response options
 function createRadios() {
 	var responseOptions = $("#responses");
@@ -74,11 +109,13 @@ function createRadios() {
 //Function to display the given question
 function displayQ() {
 	clearQ();
+	resetTimer();
 	$(".questionX").html(questions[questionCounter].question);
 	//Calling the function to display the response options
 	createRadios();
 	//Creating submit button
 	$("#submit-div").append('<button type="submit" class="btn btn-default" id="submit">' + "Submit" + '</button>');
+	runTimer()
 	submitAns();
 };
 
@@ -90,6 +127,7 @@ function displayStart() {
 		event.preventDefault();
 		//Displays the first question
 		firstQ();
+		resetTimer();
 	});
 };
 
@@ -100,6 +138,7 @@ function reset() {
 	incorrect = 0;
 	missed = 0;
 	userAns = [];
+	resetTimer();
 };
 
 //Display end page
@@ -129,6 +168,8 @@ function clearQ() {
 
 	var contentDiv = $("#content");
 	contentDiv.empty();
+
+	stopTimer();
 };
 
 //Showing whether answer was right/wrong
@@ -138,14 +179,17 @@ function checkQ() {
 	if (userAns[0] == questions[questionCounter].choicesAnswer) {
 		$("#content").append('<h3>'+"Congratulations! You chose the right answer!" + '</h3>');
 		correct++;
+		displayTimer();
 	}
 	else if (userAns[0] === undefined) {
 		$("#content").append('<h3>'+"Time's up!" + '</h3><br><br><h3>' + "The correct answer was: " + questions[questionCounter].choices[correctAnswer] + '</h3>');
 		missed++;
+		displayTimer();
 	}
 	else {
 		$("#content").append('<h3>'+"You chose the wrong answer." + '</h3><br><br><h3>' + "The correct answer was: " + questions[questionCounter].choices[correctAnswer] + '</h3>');
 		incorrect++;
+		displayTimer();
 	};
 };
 
